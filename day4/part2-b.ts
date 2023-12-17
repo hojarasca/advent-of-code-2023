@@ -7,18 +7,22 @@ import {DATA} from './input'
 // Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
 // Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11`
 
-const cardsTable = new Array(DATA.split("\n").length).fill(1);
-DATA.split("\n")
-    .forEach((line, i) =>  {
+const cards = DATA.split("\n")
+    .map((line, i) =>  {
             const [winningNumbersRaw, myNumbers] = line.split(":")[1].split('|')
             const winningNumbers = winningNumbersRaw.trim().split(/ +/)
             const numeritos = myNumbers.trim().split(/ +/).filter(n => winningNumbers.includes(n))
-            for (let j = 1, n = numeritos.length; j <= n; j++) {
-                cardsTable[i + j] += cardsTable[i];
-            }
+            return { n: i, valor: numeritos.length }
         }
     );
 
+const cardsTable = new Array(cards.length).fill(1);
+
+for (let i = 0; i < cards.length; i++){
+    for (let j = 1, n = cards[i].valor; j <= n; j++) {
+        cardsTable[i + j] += cardsTable[i];
+    }
+}
 
 console.log(
     cardsTable.reduce((a, b) => a + b, 0)
