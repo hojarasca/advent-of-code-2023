@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "part1": "ts-node part1.ts"
+    "part1": "ts-node part1.ts",
+    "part2": "ts-node part2.ts"
   },
   "devDependencies": {
     "ts-node": "^10.9.2",
