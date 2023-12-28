@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Lib
+import Lib2 (cantidadPuntosAdentro)
 
 main :: IO ()
-main = someFunc
+main = print cantidadPuntosAdentro

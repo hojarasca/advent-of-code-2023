@@ -25,7 +25,7 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Lib2
   other-modules:
       Paths_ejemplo_haskell
   autogen-modules:
