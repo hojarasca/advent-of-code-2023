@@ -16,9 +16,6 @@ type Fila = [Int]
 filas :: [Fila]
 filas = fmap read . words <$> lines datitos
 
-resultado :: Int
-resultado = sum $ predecirSiguiente <$> filas
-
 -- >>> diferenciasDe [0,3,6,9,12,15]
 -- [3,3,3,3,3]
 diferenciasDe :: Fila -> Fila
@@ -42,8 +39,33 @@ piramideDeDiferencias filaInicial
 --   [3,3,3,3,3, A],
 --    [0,0,0,0, 0]]
 
-siguiente :: Int -> Int -> Int
-siguiente diferencia anterior = diferencia + anterior
+----- PARTE 1
+
 
 predecirSiguiente :: Fila -> Int
-predecirSiguiente fila = foldr siguiente 0 (last <$> piramideDeDiferencias fila)
+predecirSiguiente fila = foldr (+) 0 (last <$> piramideDeDiferencias fila)
+
+-- >>> resultado
+-- 1916822650
+resultado :: Int
+resultado = sum $ predecirSiguiente <$> filas
+
+----- PARTE 2
+
+
+-- 5  10  13  16  21  30  45
+--   5   3   3   5   9  15
+--    -2   0   2   4   6
+--       2   2   2   2
+--         0   0   0
+
+-- >>> predecirSiguiente' [10,  13,  16,  21,  30,  45]
+-- 5
+predecirSiguiente' :: Fila -> Int
+predecirSiguiente' fila = foldr (-) 0 (head <$> piramideDeDiferencias fila)
+
+-- >>> resultado'
+-- 966
+
+resultado' :: Int
+resultado' = sum $ predecirSiguiente' <$> filas
