@@ -15,7 +15,7 @@ fn main() {
     let seeds = create_seeds(seeds);
 
     let mapping = lines.iter()
-        .map(|l| create_mapping(l))
+        .map(|l| Mapping::from_lines(l))
         .rev()
         .collect::<Vec<_>>();
 
@@ -31,7 +31,6 @@ fn main() {
         }
         i += 1;
     }
-
 
     println!("{:?}", &i);
 }
@@ -49,14 +48,6 @@ fn create_seeds(seeds: &str) -> Vec<Range<isize>> {
     seeds
 }
 
-fn create_mapping(raw: &str) -> Mapping {
-    let rules = raw.split('\n').skip(1).map(|line| {
-        let numbers: Vec<_> = line.split(' ').map(|str| str.parse::<isize>().unwrap()).collect();
-        MappingRule::new(numbers[0], numbers[1], numbers[2])
-    }).collect::<Vec<_>>();
-    Mapping::new(rules)
-}
-
 #[derive(Debug)]
 struct Mapping {
     rules: Vec<MappingRule>
@@ -65,6 +56,14 @@ struct Mapping {
 impl Mapping {
     pub fn new (rules: Vec<MappingRule>) -> Mapping {
         Mapping { rules }
+    }
+
+    pub fn from_lines(lines: &str) -> Mapping {
+        let rules = lines.split('\n').skip(1).map(|line| {
+            let numbers: Vec<_> = line.split(' ').map(|str| str.parse::<isize>().unwrap()).collect();
+            MappingRule::new(numbers[0], numbers[1], numbers[2])
+        }).collect::<Vec<_>>();
+        Mapping::new(rules)
     }
 
     pub fn map_value(&self, from: isize) -> isize {
@@ -93,5 +92,4 @@ impl MappingRule {
             None
         }
     }
-
 }
