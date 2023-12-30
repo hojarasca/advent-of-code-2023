@@ -1,9 +1,13 @@
 mod data;
 
 use std::cmp::{max, min};
+use crate::data::DATA;
 
 fn main() {
-    println!("Hello, world!");
+    let input = DATA;
+    let mut space = Space::from_str(input);
+    space.expand_space(1_000_000);
+    println!("{}", space.total_distance())
 }
 
 type Galaxy = (usize, usize);
@@ -11,42 +15,49 @@ type Galaxy = (usize, usize);
 #[derive(Debug)]
 struct Space {
     cells: Vec<Vec<char>>,
+    distances: Option<Vec<Vec<usize>>>,
     galaxies: Option<Vec<Galaxy>>
 }
+
+
+// ...#......
+// .......#..
+// #.........
+// ..........
+// ......#...
+// .#........
+// .........#
+// ..........
+// .......#..
+// #...#.....
 
 impl Space {
     pub fn from_str(input: &str) -> Space {
         let cells = input.lines().map(|l| l.chars().collect())
             .collect();
-        Space { cells, galaxies: None }
+        Space { cells, galaxies: None, distances: None }
     }
 
-    pub fn expand_space(&mut self) {
-        let new_cells: Vec<_> = self.cells.iter().flat_map(|row| {
-           if row.iter().all(|cell| *cell == '.') {
-               vec![row, row]
-           } else {
-               vec![row]
-           }
-        }).cloned().map(|a| a).collect();
-
+    pub fn expand_space(&mut self, expansion: usize) {
         let row_len = self.cells.first().unwrap().len();
-
         let columns_to_expand = (0..row_len)
             .filter(|i| self.cells.iter().all(|row| row[*i] == '.'))
             .collect::<Vec<_>>();
 
-        let new_cells = new_cells.iter().map(|row| {
-            row.iter().enumerate().flat_map(|(index, cell)| {
-                if columns_to_expand.contains(&index) {
-                    vec![cell, cell]
+        let rows_to_expand: Vec<_> = (0 .. self.cells.len())
+            .filter(|i| self.cells[*i].iter().all(|cell| *cell == '.')).collect();
+
+        let distances = self.cells.iter().enumerate().map(|(row_number, row)| {
+            row.iter().enumerate().map(|(colum_number, cell)| {
+                if columns_to_expand.contains(&colum_number) || rows_to_expand.contains(&row_number) {
+                    expansion
                 } else {
-                    vec![cell]
+                    1
                 }
-            }).cloned().collect()
+            }).collect()
         }).collect();
 
-        self.cells = new_cells;
+        self.distances = Some(distances);
         self.calculate_galaxies();
     }
 
@@ -56,11 +67,21 @@ impl Space {
                 if *cell == '.' {
                     None
                 } else {
-                    Some((column_number, row_number))
+                    let column_distance = self.calculate_column_distance(column_number, row_number);
+                    let row_distance = self.calculate_row_distance(column_number, row_number);
+                    Some((column_distance, row_distance))
                 }
             }).collect::<Vec<_>>()
         }).collect();
         self.galaxies = Some(galaxies)
+    }
+
+    fn calculate_column_distance(&self, column: usize, row: usize) -> usize {
+        self.distances.clone().unwrap()[..row].iter().map(|row| row[column]).sum()
+    }
+
+    fn calculate_row_distance(&self, column: usize, row: usize) -> usize {
+        self.distances.clone().unwrap()[row].iter().take(column).sum()
     }
 
     pub fn combinations(&self) -> Vec<(Galaxy, Galaxy)> {
@@ -109,7 +130,7 @@ mod tests {
     fn case1() {
         let input = TEST_1;
         let mut space = Space::from_str(input);
-        space.expand_space();
+        space.expand_space(2);
         println!("{}", space.total_distance())
     }
 
@@ -117,7 +138,15 @@ mod tests {
     fn posta () {
         let input = DATA;
         let mut space = Space::from_str(input);
-        space.expand_space();
+        space.expand_space(2);
+        println!("{}", space.total_distance())
+    }
+
+    #[test]
+    fn papa () {
+        let input = DATA;
+        let mut space = Space::from_str(input);
+        space.expand_space(1_000_000);
         println!("{}", space.total_distance())
     }
 }
